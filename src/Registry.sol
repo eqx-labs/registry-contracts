@@ -8,6 +8,9 @@ import { BLS } from "./lib/BLS.sol";
 import { MerkleTree } from "./lib/MerkleTree.sol";
 import { IRegistry } from "./IRegistry.sol";
 import { ISlasher } from "./ISlasher.sol";
+import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import {UUPSUpgradeable} from "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
+
 
 contract Registry is IRegistry, OwnableUpgradeable, UUPSUpgradeable {
 
@@ -27,7 +30,7 @@ contract Registry is IRegistry, OwnableUpgradeable, UUPSUpgradeable {
         uint48 _costOfChallenge,
         uint48 _slotTime
     ) public initializer {
-        __Ownable_init(_owner);
+        __Ownable_init();
 
         CHALLENGE_TIMEOUT_WINDOW = _challengeTimeoutWindow;
         COST_OF_CHALLENGE = _costOfChallenge;

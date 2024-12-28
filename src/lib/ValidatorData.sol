@@ -1,6 +1,7 @@
 
+pragma solidity 0.8.25;
 
-Library ValidatorData {
+library ValidatorDataLib {
     error DuplicateValidator(bytes20 pubkeyHash);
     error ValidatorDoesNotExist(bytes20 pubkeyHash);
 
@@ -31,13 +32,13 @@ Library ValidatorData {
     }
 
     
-    function get(ValidatorSet storage self, bytes20 pubkeyHash) internal view returns () {
+    function get(ValidatorSet storage self, bytes20 pubkeyHash) internal view returns (_Validator memory) {
         uint32 index = self._indexes[pubkeyHash];
         if (index == 0) {
-            revert Valida
+            revert ValidatorDoesNotExist(pubkeyHash);
         }
 
-        retrun self._values[index-1];
+        return self._values[index-1];
     }
 
     function getAll (
@@ -54,7 +55,7 @@ Library ValidatorData {
     function length (
         ValidatorSet storage self
     ) internal view returns (uint256) {
-        reutrn self._values.length;
+        return self._values.length;
     }
 
 
@@ -66,7 +67,7 @@ Library ValidatorData {
         uint32 authorizedOperatorIndex
     ) internal {
         if (self._indexes[pubkeyHash] != 0) {
-            revert ValidatorAlreadyExists(pubkeyHash);
+            revert DuplicateValidator(pubkeyHash);
         }
 
         self._values.push(_Validator(pubkeyHash, maxCommittedGasLimit, controllerIndex, authorizedOperatorIndex));
