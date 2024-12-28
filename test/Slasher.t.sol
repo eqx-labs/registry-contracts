@@ -6,8 +6,8 @@ import "forge-std/console.sol";
 import { BLS } from "../src/lib/BLS.sol";
 import { MerkleTree } from "../src/lib/MerkleTree.sol";
 import "../src/Registry.sol";
-import { IRegistry } from "../src/IRegistry.sol";
-import { ISlasher } from "../src/ISlasher.sol";
+import { IRegistry } from "../src/interfaces/IRegistry.sol";
+import { ISlasher } from "../src/interfaces/ISlasher.sol";
 import { UnitTestHelper } from "./UnitTestHelper.sol";
 
 contract DummySlasher is ISlasher {

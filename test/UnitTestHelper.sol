@@ -3,8 +3,8 @@ pragma solidity >=0.8.0 <0.9.0;
 
 import "forge-std/Test.sol";
 import "../src/Registry.sol";
-import "../src/IRegistry.sol";
-import "../src/ISlasher.sol";
+import "../src/interfaces/IRegistry.sol";
+import "../src/interfaces/ISlasher.sol";
 import { BLS } from "../src/lib/BLS.sol";
 
 contract UnitTestHelper is Test {

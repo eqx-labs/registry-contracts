@@ -6,74 +6,10 @@ pragma solidity >=0.8.0 <0.9.0;
 
 import { BLS } from "./lib/BLS.sol";
 import { MerkleTree } from "./lib/MerkleTree.sol";
-import { IRegistry } from "./IRegistry.sol";
-import { ISlasher } from "./ISlasher.sol";
+import { IRegistry } from "./interfaces/IRegistry.sol";
+import { ISlasher } from "./interfaces/ISlasher.sol";
 
-contract Registry is IRegistry, OwnableUpgradeable, UUPSUpgradeable {
-    // ====== CONTRACT PARAMS ============
-
-    uint48 public CHALLENGE_TIMEOUT_WINDOW;
-
-    uint256 public COST_OF_CHALLENGE;
-
-    uint256 public SLOT_TIME;
-
-    uint256[47] private __gap;
-
-    function initializeParams(
-        address a,
-        uint48 _challengeTimeoutWindow,
-        uint48 _costOfChallenge,
-        uint48 _slotTime
-    ) public initializer {
-        __Ownable_init(_owner);
-
-        CHALLENGE_TIMEOUT_WINDOW = _challengeTimeoutWindow;
-        COST_OF_CHALLENGE = _costOfChallenge;
-        SLOT_TIME = _slotTime;
-    }
-
-    function _authorizeUpgrade(
-        address newImplementation
-    ) internal override onlyOwner {}
-
-    function setChallengeTimeoutWindow(
-        uint48 challengeTimeoutWindow
-    ) public onlyOwner {
-        CHALLENGE_TIMEOUT_WINDOW = challengeTimeoutWindow;
-    }
-
-    function setCostOfChallenge(
-        uint48 costOfChallenge
-    ) public onlyOwner {
-        COST_OF_CHALLENGE = costOfChallenge;
-    }
-
-    function setSlotTime(
-        uint48 slotTime
-    ) public onlyOwner {
-        SLOT_TIME = slotTime;
-    }
-
-    /// ====== END CONTRACT PARAMS ==========
-
-    /// ====== Validator Register Functions =====
-
-    event ValidatorRegistered(bytes32 indexed pubkeyHash);
-    
-    function initialize(address _owner, address _parameters) public initializer {
-        _Ownable_init(_owner);
-        
-        parameters = IBoltParametersV1(_parameters);
-    }
-
-    function getAllValidators() public view returns (ValidatorInfo[] memory) {
-        ValidatorsLib._Validator[] memory _vals = VALIDATORS.getAll();
-        ValidatorInfo[] moe
-    }
-    
-    /// ====== END VALIDATOR REGISTER FUNCTIONS ====
-
+contract Registry is IRegistry {
     using BLS for *;
 
     /// @notice Mapping from registration merkle roots to Operator structs

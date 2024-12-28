@@ -162,7 +162,7 @@ library BLS {
     /// @return A point in G2
     function hashToCurveG2(bytes memory message) internal view returns (G2Point memory) {
         // 1. u = hash_to_field(msg, 2)
-        Fp2[2] memory u = hashToFieldFp2(message, bytes("BLS_SIG_BLS12381G2_XMD:SHA-256_SSWU_RO_NUL_"));
+        Fp2[2] memory u = hashToFieldFp2(message, bytes("BLS_SIG_BLSG2_XMD:SHA-256_SSWU_RO_NUL_"));
         // 2. Q0 = map_to_curve(u[0])
         G2Point memory q0 = MapFp2ToG2(u[0]);
         // 3. Q1 = map_to_curve(u[1])
@@ -382,5 +382,99 @@ library BLS {
         g2Points[1] = messagePoint;
 
         return BLS.Pairing(g1Points, g2Points);
+    }
+
+    /**
+     * @notice Negates a G1 point, by reflecting it over the x-axis
+     * @dev Assumes that the Y coordinate is always less than the field modulus
+     * @param point The G1 point to negate
+     */
+    function negate(
+        G1Point memory point
+    ) internal pure returns (G1Point memory) {
+        uint256[2] memory fieldModulus = baseFieldModulus();
+        uint256[2] memory yNeg;
+
+        // Perform word-wise elementary subtraction
+        if (fieldModulus[1] < point.y.b) {
+            yNeg[1] = type(uint256).max - (point.y.b - fieldModulus[1]);
+            fieldModulus[0] -= 1; // borrow
+        } else {
+            yNeg[1] = fieldModulus[1] - point.y.b;
+        }
+        yNeg[0] = fieldModulus[0] - point.y.a;
+        Fp memory res;
+        res.a = yNeg[0];
+        res.b = yNeg[1];
+        
+        return G1Point({x: point.x, y: res});
+    }
+
+    /**
+     * @notice Returns a G1Point in the compressed form
+     * @dev Based on https://github.com/zcash/librustzcash/blob/6e0364cd42a2b3d2b958a54771ef51a8db79dd29/pairing/src/bls12_381/README.md#serialization
+     * @param point The G1 point to compress
+     */
+    function compress(
+        G1Point memory point
+    ) internal pure returns (uint256[2] memory) {
+        uint256[2] memory r = [point.x.a, point.x.b];
+
+        // Set the first MSB
+        r[0] = r[0] | (1 << 127);
+
+        // Second MSB is left to be 0 since we are assuming that no infinity points are involved
+
+        // Set the third MSF If point.y is lexicographically larger than the y in negated point
+        uint256[2] memory a;
+        uint256[2] memory b; 
+
+        a[0] = point.y.a;
+        a[1] = point.y.b;
+
+        b[0] = negate(point).y.a;
+        b[1] = negate(point).y.b;
+        if (_greaterThan(a, b)) {
+            r[0] = r[0] | (1 << 125);
+        }
+
+        return r;
+    }
+
+    /**
+     * @notice Returns true if `a` is lexicographically greater than `b`
+     * @dev It makes the comparison bit-wise.
+     * This functions also assumes that the passed values are 48-byte long BLS pub keys that have
+     * 16 functional bytes in the first word, and 32 bytes in the second.
+     */
+    function _greaterThan(uint256[2] memory a, uint256[2] memory b) internal pure returns (bool) {
+        uint256 wordA;
+        uint256 wordB;
+        uint256 mask;
+
+        // Only compare the unequal words
+        if (a[0] == b[0]) {
+            wordA = a[1];
+            wordB = b[1];
+            mask = 1 << 255;
+        } else {
+            wordA = a[0];
+            wordB = b[0];
+            mask = 1 << 127; // Only check for lower 16 bytes in the first word
+        }
+
+        // We may safely set the control value to be less than 256 since it is guaranteed that the
+        // the loop returns if the first words are different.
+        for (uint256 i; i < 256; ++i) {
+            uint256 x = wordA & mask;
+            uint256 y = wordB & mask;
+
+            if (x == 0 && y != 0) return false;
+            if (x != 0 && y == 0) return true;
+
+            mask = mask >> 1;
+        }
+
+        return false;
     }
 }
