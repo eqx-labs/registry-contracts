@@ -29,7 +29,13 @@ remappings = [
   "lib/karak-onchain-sdk/:forge-std/=lib/forge-std/src/",
   "lib/karak-onchain-sdk/:@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/",
   "lib/karak-onchain-sdk/:@openzeppelin-upgradeable/=lib/openzeppelin-contracts-upgradeable/contracts/",
-  "lib/karak-onchain-sdk/:@chainlink/=lib/chainlink/contracts/"
+  "lib/karak-onchain-sdk/:@chainlink/=lib/chainlink/contracts/",
+
+  # openzeppelin
+  "@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/",
+  "@openzeppelin/contracts-upgradeable/=lib/openzeppelin-contracts-upgradeable/contracts/",
+  "@openzeppelin-foundry-upgrades/=lib/openzeppelin-foundry-upgrades/",
+
 ]
 
 [rpc_endpoints]
